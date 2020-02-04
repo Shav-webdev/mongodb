@@ -1,0 +1,44 @@
+* Create a database with the users of the following collection, tasks. Task schema ({_id, title, text, completed, created, updated}
+* Create an insert user script
+* Create update user’s name script for given _id
+* Create get all users script (retrieving the only username) and sorted by username
+* Create a script that returns only female users
+* Create a script to update all tasks completed = false
+* Create a script to delete all completed=true tasks
+* Create a script to get all tasks of user sorted by created date that are not completed.
+
+
+1. use users, db.createCollection("users"),
+    db.users.insertOne([{}])
+    db.tasks.insertMany([{},{},{}])
+
+2. db.users.insertOne({{"name": "Kitty", "age": 20, "gender": "female"}})
+3. db.users.updateOne({"_id" : ObjectId("5e38acdd6a643145eb212004")}, {$set: {"name":"Kitty"}})
+4. db.users.find({}, {"_id":0, "age": 0, "gender":0 }).sort({"name": 1})
+   db.users.find({}, {"name" : 1, "_id": 0}).sort({"name": 1})
+5. db.users.find({"gender" : "female"}, {"_id": 0, "gender": 1})
+6. try {
+      db.tasks.updateMany(
+         { "completed" : false, },
+         { $set: { "completed" : true } }
+      );
+   } catch (e) {
+      print(e);
+   }
+7. try {
+      db.tasks.deleteMany( { "completed" : true } );
+   } catch (e) {
+      print (e);
+   }
+
+8. db.users.aggregate([
+      {
+        $lookup:
+          {
+            from: "tasks",
+            localField: "task_id",
+            foreignField: "_id",
+            as: "tasks"
+          }
+     }
+   ]).find({"completed" : false}, {"_id": 0, "tasks": 1}).sort("created_date": 1)
